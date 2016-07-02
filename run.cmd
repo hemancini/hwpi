@@ -2,7 +2,7 @@
 
 net session >nul 2>&1
    if %errorlevel% neq 0 (
-      echo ! error - this script must be run as an administrator
+      echo error - this script must be run as an administrator
       pause
 	  exit
    )

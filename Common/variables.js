@@ -59,7 +59,7 @@ function ReadRegStr (RootKey, KeyName, ValueName, RegType) {
 	return oOutParams.SValue;
 }
 function installApp(id) {
-	var appExecute, appArgument, appOption, appOptionCommand, command;
+	var appExecute, appArgument, appOption, appOptionCommand, _appOptionCommand, command;
 	var fileCopy  = [];
 	var filePatch = [];
 	for(var i = 0; i < apps.length; i++) {
@@ -71,46 +71,43 @@ function installApp(id) {
 			try {
 				WshShell.run('"' + appExecute + '"' + " " + appArgument + "", 1, true);
 			} catch(err) {
-				alert("installApp: " + apps[i].Name);
+				alert("installApp: " + apps[i].Name + " " + appExecute);
 			}
 
 			if (typeof appOption != 'undefined') {
 				for(var j = 0; j < appOption.length; j++) {
 					appOptionCommand = appOption[j].Command;
-					
-					if (appOptionCommand.indexOf('{CMD}') != -1) {
-						// cmd /c del /f /q
-						command = true;
-					}
-					if (appOptionCommand.indexOf('{FILECOPY}') != -1) {
-						FILECOPY = appOptionCommand.replace(/{FILECOPY}/gi,'').replace(/"/g, '').replace(/\s/, '').split(", ");
-						try {
-							fso.CopyFile((rootPath + "\\" + FILECOPY[0]).replace(/\\/g, "\\\\"), environmentString(FILECOPY[1]).replace(/\\/g, "\\\\"));
-						} catch(err) {
-							alert("FILECOPY: " + err + "\n" + appOptionCommand);
-						}
-						command = true;
-					}
-					if (appOptionCommand.indexOf('{DELETE}') != -1) {
-						DELETE = appOptionCommand.replace(/{DELETE}/gi,'').replace(/"/g, '').replace(/\s/, '');
-						try {
-							fso.DeleteFile(environmentString(DELETE).replace(/\\/g, "\\\\"));
-						} catch(err) {
-							alert("DELETE: " + err + "\n" + appOptionCommand);
-						}
-						command = true;
-					} 
-					if (!command) {
-						try {
-							if (appOptionCommand.indexOf('"')) {
-								WshShell.run('"' + appOptionCommand + "", 1, true);
-							} else {
-								WshShell.run(appOptionCommand, 1, true);
+					_appOptionCommand = appOptionCommand.indexOf('{') != -1 ? appOptionCommand.split(' ') : appOptionCommand;
+					switch (_appOptionCommand[0]) {
+						case '{CMD}':
+							// cmd /c del /f /q
+							break;
+						case '{FILECOPY}':
+							FILECOPY = appOptionCommand.replace(/{FILECOPY}/gi,'').replace(/"/g, '').replace(/\s/, '').split(", ");
+							try {
+								fso.CopyFile((rootPath + "\\" + FILECOPY[0]).replace(/\\/g, "\\\\"), environmentString(FILECOPY[1]).replace(/\\/g, "\\\\"));
+							} catch(err) {
+								alert("FILECOPY: " + err + "\n" + appOptionCommand);
 							}
-							
-						} catch(err) {
-							alert("installApp: " + appOptionCommand);
-						}
+							break;
+						case '{DELETE}':
+							DELETE = appOptionCommand.replace(/{DELETE}/gi,'').replace(/"/g, '').replace(/\s/, '');
+							try {
+								fso.DeleteFile(environmentString(DELETE).replace(/\\/g, "\\\\"));
+							} catch(err) {
+								alert("DELETE: " + err.description + "\n" + appOptionCommand);
+							}
+							break;
+						default:
+							try {
+								if (appOptionCommand.indexOf('"')) {
+									WshShell.run('"' + appOptionCommand + "", 1, true);
+								} else {
+									WshShell.run(appOptionCommand, 1, true);
+								}
+							} catch(err) {
+								alert("installOptions: " + appOptionCommand);
+							}
 					}
 				}
 			}

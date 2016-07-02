@@ -192,7 +192,7 @@ var apps = [
 	   "Name":"Unlocker",
 	   "Description":"Liberate de esos archivos que no se dejan eliminar",
 	   "Path32":"Install\\Unlocker\\Unlocker1.9.2.exe",
-	   "Condition":"getOSver()=='Win7'",
+	   // "Condition":"getOSver()=='Win7'",
 	   "Argument":"/S",
 	   "URL":"http://www.emptyloop.com/unlocker/",
 	   "CheckedDefault":true,

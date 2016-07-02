@@ -3,14 +3,9 @@
 <![endif]-->
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 	<head>
-	<title>DriverPack Solution</title>
+	<!-- <title>HWPI</title> -->
 	<meta HTTP-EQUIV="MSThemeCompatible" content="yes">
 	<meta http-equiv="X-UA-Compatible" content="IE=9">
-
-	<!-- { IF [NOSCRIPT] } -->
-	<noscript>
-		<meta http-equiv="refresh" content="10;URL='http://drp.su/error/noscript/'">
-	</noscript>
 
 	<style>
 	#loader{
@@ -29,7 +24,7 @@
 
 	<HTA:APPLICATION ID="wpi"
 		application="yes"
-		applicationName="DriverPack Solution"
+		applicationName="HWPI"
 		borderStyle="normal"
 		caption="yes"
 		contextMenu="no"
@@ -46,25 +41,31 @@
 		sysMenu="yes"
 		version="0.1"
 		windowState="maximize"/>
-		<!-- 
+
 		<script language="VBScript">
 			If InStr( UCase( wpi.CommandLine ), "/NOADMIN" ) > 0 Then
 				IsAdmin = True
-			else
+			Else
 				IsAdmin = False
 			End If
 			If Not isAdmin Then
-				MsgBox "IsAdmin: " & IsAdmin, 65, "IsAdmin"
-				strHTA = Self.location.pathname
-				strCommandLine = wpi.CommandLine
-				' Elevate privileges
-				Set objUAC = CreateObject( "Shell.Application" )
-				objUAC.ShellExecute "MSHTA.EXE", """" & strHTA & """ /NOADMIN " & strCommandLine, "", "runas", 1
-				Set objUAC = Nothing
-				window.close True
+				answer = MsgBox("Ejecutar como administrador?", vbYesNo + vbQuestion, wpi.applicationName)
+				If answer = vbYes Then
+					strHTA = Self.location.pathname
+					strCommandLine = wpi.CommandLine
+					Set objUAC = CreateObject( "Shell.Application" )
+					'<!-- objUAC.ShellExecute "MSHTA.EXE", """" & strHTA & """ /NOADMIN " & strCommandLine, "", "runas", 1 -->
+					sTmp = Replace( Replace(Unescape(window.location), "file:///", "") ,"/", "\")
+					Path = Left(sTmp, InstrRev( sTmp , "\") - 1)
+					objUAC.ShellExecute  "cmd.exe", "/k cd "&Path&" && start "&strHTA&" /NOADMIN && exit", "", "runas", 1
+					Set objUAC = Nothing
+					window.close True
+				Else
+					'do nothing
+				End If
 			End If
 		</script>
-		 -->
+
 		<script type="text/javascript">
 			var cmd = wpi.commandLine;
 			if (cmd != ''){
