@@ -1,0 +1,33 @@
+.footer {
+  position: absolute;
+  height: 55px;
+  padding: 16px 0 8px 0;
+}
+.footer_expert {
+  margin-top: 4px;
+}
+.footer_meta-lang-select {
+  display: inline-block;
+  width: 100px;
+  position: relative;
+}
+.footer_meta-lang-select select {
+  height: 30px;
+  width: 100px;
+  font-size: 14px;
+  opacity: 100;
+  filter: alpha(opacity=100);
+}
+.footer_meta-lang-label {
+  position: absolute;
+  background: none;
+}
+.footer_meta-lang-label {
+  display: none;
+}
+.footer_meta-lang-icon {
+  margin-top: 3px;
+}
+.footer_meta-trusted {
+  margin-top: -4px;
+}

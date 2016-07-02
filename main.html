@@ -1,0 +1,306 @@
+<!--[if !(IE 6)]><!-->
+<!DOCTYPE html>
+<!--<![endif]-->
+<html>
+	<head>
+		<title>Install pilso</title>
+		
+		<!-- { FAVICON } -->
+		<link rel="shortcut icon" href="Tools\icon.ico" type="image/x-icon">
+		
+		<!-- { IE10 } -->
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta http-equiv="MSThemeCompatible" content="yes">
+		
+		<!-- { NO CACHE IE }-->
+		<meta http-equiv="cache-control" content="no-cache">
+		<meta http-equiv="expires" content="0">
+		<meta http-equiv="pragma" content="no-cache">
+		
+		<!-- { STYLES } -->
+		<link rel="stylesheet" type="text/css" href="css/normalize.min.css">
+		<link rel="stylesheet" type="text/css" href="css/open-sans.css">
+		<link rel="stylesheet" type="text/css" href="css/roboto.css">
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+		<link rel="stylesheet" type="text/css" href="css/ui2.css">
+		<link rel="stylesheet" type="text/css" href="css/drp.css">
+		<!--[if (IE 6)]>
+		<link rel="stylesheet" type="text/css" href="css/ie6.css" />
+		<![endif]-->
+		<!--[if (IE 7)]>
+		<link rel="stylesheet" type="text/css" href="css/ie7.css" />
+		<![endif]-->
+		<!--[if lte IE 9]>
+		<link rel="stylesheet" type="text/css" href="css/lte-ie9.css" />
+		<![endif]-->
+		
+		<script type="text/javascript" src="Common/softwares.js" application="yes"></script>
+		<script type="text/javascript" src="Common/variables.js" application="yes"></script><link type="image/x-icon" rel="shortcut icon" href="http://www.stackoverflow.com/favicon.ico">
+		<script type="text/javascript" src="Common/registry_dos.js" application="yes"></script>
+		<script type="text/javascript" src="Common/wmi.js" application="yes"></script>
+		
+		<script type="text/javascript" application="yes">
+		function readApp(){
+		var tableOutListApps =  "<table id='list' class='list'>"+
+									"<thead>"+
+										"<tr class='programs-list_row'>"+
+											"<td colspan='1' class='programs-list_head' style='padding-left:22px;'>"+
+												"<input id='checkInput' type='checkbox' onclick='checkAllInput(this)' value='true'>"+
+											"</td>"+
+											"<td colspan='5'onclick=checkAllInput(document.getElementById('checkInput')) class='programs-list_head'>Programas</td>"+
+										"</tr>"+
+									"</thead>"+
+									"<tbody id='listApps'>";
+		var i, j, x;
+		for (i = 0; i < apps.length; i++) {
+			var expId          = apps[i].ID;
+			var expName        = apps[i].Name;
+			var expVersion     = apps[i].Version;
+			var expDescription = apps[i].Description;
+			var expPath        = (is64 && typeof apps[i].Path64 != 'undefined' ? apps[i].Path64 : apps[i].Path32);
+			var expRegUnistall = apps[i].UnistallRegistry;
+			var expIcon        = apps[i].Icon;
+			var expOptions     = apps[i].Options;
+			var expArgument    = apps[i].Argument;
+			var expURL         = apps[i].URL;
+			var expCondition   = apps[i].Condition;
+
+			var checkBoxInstall, imgOption, installUnistall;
+			var tableOptions     = "";
+			var incompatible     = "";
+			var appUnistallExist = typeof expRegUnistall != 'undefined' && unistallExist(expRegUnistall);
+			var appCondition     = typeof expCondition != 'undefined' && !eval(unescape(expCondition.replace(/\\/g, "\\\\")));
+			var checkboxDisabled = appCondition ? "disabled=''" : appUnistallExist ? "disabled=''" : "";
+			
+			if (!appCondition) {
+				if (appUnistallExist) {
+					installUnistall = "<button onclick='unistallApp("+expId+")' class='list_button uninstall' title='Desintalar "+expName+"'>Desintalar</button>";
+					checkBoxInstall = "<input type='checkbox' title='"+expName+" instalado' id='"+expId+"' value='"+expId+"' "+checkboxDisabled+" style='float:right;cursor:not-allowed'>";
+				} else {
+					installUnistall = "<button onclick='installApp("+expId+")' class='list_button install' title='Instalar "+expName+"'>Instalar</button>";
+					checkBoxInstall = "<input type='checkbox' id='"+expId+"' name='software' value='"+expId+"' "+checkboxDisabled+" style='float:right'>";
+				}
+			} else {
+				if (!showIncompatible) {
+					incompatible = "style='display:none;'";
+				}
+				installUnistall = "<button class='list_button uninstall' title='Incompatible'>Incompatible</button>";
+				checkBoxInstall = "<input type='checkbox' title='"+expName+" instalado' id='"+expId+"' value='"+expId+"' "+checkboxDisabled+" style='float:right;cursor:not-allowed'>";
+			}
+
+			if (typeof expOptions != 'undefined') {
+				for (j = 0; j < expOptions.length; j++) {
+					if (expOptions[j].CheckedDefault) {
+						checkBoxOption = "<input type='checkbox' id='"+expId+"' name='"+expName+"' checked disabled=''>";
+					} else {
+						checkBoxOption = "<input type='checkbox' id='"+expId+"' name='"+expName+"'>";
+					}
+					tableOptions += "<tr name='options"+expId+"' class='list_row list_dropdown' style='display:none'>"+
+										"<td class='list_cell'> </td>"+
+										"<td class='list_cell list_info'><a href='#' class='list_info-link'>"+checkBoxOption+"</a></td>"+
+										"<td class='list_cell list_name' title=''><a href='#'><span >"+expOptions[j].Description+"</span></a></td>"+
+										"<td class='list_cell list_button-col'><button class='list_button install' >&nbsp;</button></td>"+
+										"<td class='list_cell' colspan='3' width='44'> </td>"+
+									"</tr>";
+				}
+				imgOption = "<img id='optionsImg"+expId+"' src='img/screens/icon-arrow-close.png' style='cursor:pointer' width='16' height='11' title='Opciones de instalación' onclick='showOptions(this.id)' 'style='cursor:pointer'>";
+			} else {
+				imgOption = "<img src='img/screens/icon-arrow-close-gris.png' width='16' height='11' style='cursor:not-allowed'>";
+			}
+			
+			tableOutListApps += "<tr class='list_row' "+incompatible+">"+
+									"<td class='list_cell list_checkcell'><label class='list_checkzone'>"+checkBoxInstall+"</label></td>"+
+									"<td id='detail' class='list_cell list_info'>"+
+										"<a href='#' class='list_info-link'><img id='icon"+expId+"' src='"+expIcon+"' class='list_info-link-icon' onclick='checkInput(this.id)' width='16' height='16'></a>"+
+										<!-- Detail software -->
+										"<div class='list_info-wrapper'>"+
+											"<div class='popover popover_right'>"+
+												"<div class='arrow'><img src='img/screens/arrow-right.png' width='10' height='17'></div>"+
+												"<table width='100%'>"+
+													"<tbody>"+
+														"<tr class='popover_head'>"+
+															"<td colspan='3'>"+
+																"<p class='popover_line'><b>"+expName+" "+expVersion+"</b></p>"+
+																"<a href='"+expURL+"' target='_blank'><button class='button popover_head-btn'>Página de inicio</button></a>"+
+															"</td>"+
+														"</tr>"+
+														"<tr class='popover_row-border'>"+
+															"<td colspan='5' height='1' class='popover_row-border'></td>"+
+														"</tr>"+
+														"<tr>"+
+															"<td class='popover_divider'></td>"+
+															"<td class='popover_col'>"+
+																"<p class='popover_title'><b>"+expDescription+"</b></p>"+
+																"<p class='popover_line' style='cursor:pointer' onclick=openDirectory('"+(expId)+"') title='Abrir directorio'><span class='popover_line-label'>Ruta:</span><span>&nbsp;</span><span>"+expPath+"</span></p>"+
+																"<p class='popover_line'><span class='popover_line-label'>Argumento:</span><span>&nbsp;</span><span>"+expArgument+"</span></p>"+
+																"<p class='popover_line'><span class='popover_line-label'>Version:</span><span>&nbsp;</span><b style='color:#007800;'>"+expVersion+"</b></p>"+
+																"<p class='popover_line'><span class='popover_line-label'>ID:</span><span>&nbsp;</span><span>"+expId+"</span></p>"+
+															"</td>"+
+														"</tr>"+
+													"</tbody>"+
+												"</table>"+
+											"</div>"+
+										"</div>"+
+									"</td>"+
+									"<td class='list_cell list_name' title=''><a href='#'><span>"+expName+" </span><span></span><span>"+expVersion+"</span></a></td>"+
+									"<td class='list_cell list_button-col'>"+installUnistall+"</td>"+
+									"<td class='list_cell list_arrow-col'>"+imgOption+"</td>"+
+								"</tr>"+
+								tableOptions;
+			<!-- document.getElementById("listApps").innerHTML = tableOutListApps; -->
+			document.getElementById("contentLoad").style.display = 'none';
+			document.getElementById("contentApps").style.display = '';
+		}
+		tableOutListApps += "</tbody></table>";
+		document.getElementById("tableApps").innerHTML = tableOutListApps;
+	}
+	function checkListApps() {
+		document.getElementById("app-container").style.display = 'none';
+		document.getElementById("app-process").style.display = '';
+		
+		var inputs = document.getElementById("listApps").getElementsByTagName('input');
+		for (var i = 0; i < inputs.length; i++) {
+			var node = inputs[i];
+			if (node.getAttribute('type') == 'checkbox' && inputs[i].checked) {
+				installApp(inputs[i].value);
+			}
+		}
+		readApp();
+		document.getElementById("app-process").style.display = 'none';
+		document.getElementById("app-container").style.display = '';
+		alert("Fin de la instalacion!");
+	}
+	function checkAllInput(checkAllInput) {
+		checkboxes = document.getElementsByName('software');
+		for (var i = 0; i < checkboxes.length; i++){
+			checkboxes[i].checked = (checkAllInput.value == "true") ? true : false;
+		}
+		(checkAllInput.value == "true") ? checkAllInput.value = false : checkAllInput.value = true;
+	}
+	function checkInput(id) {
+		var checkId = document.getElementById(id.replace('icon', ''));
+		checkId.disabled ? checkId.checked = false : checkId.checked ? checkId.checked = false : checkId.checked = true;
+	}
+	</script>
+		
+	</head>
+	<body class="ui1 copy1 start_cta-1" onload="readApp()">
+		<hta:application id="dpa" application="yes" applicationname="Install Solution" borderstyle="normal" caption="yes" contextmenu="no" icon="./Tools/icon.ico" innerborder="no" maximizebutton="yes" minimizebutton="yes" navigable="yes" scroll="yes" scrollflat="no" selection="no" showintaskbar="yes" singleinstance="no" sysmenu="yes" version="0.1" windowstate="maximize">
+			<div id="app" class="app">
+				<table class="main">
+					<tbody>
+						<tr>
+							<td class="menu">
+								<div class="menu_wrapper">
+									<img src="img/med_logo.png" class="menu_logo">
+									<div>
+										<div class="menu">
+											<a href="#" class="menu_item menu_item_first active" title="Instalar software en el equipo">
+												<table class="menu_item-table">
+													<tbody>
+														<tr>
+															<td width="64" style="padding:0px;text-align:center;"><img src="img/screens/computer-w.png" class="menu_item-img" id="m-pc" width="24" height="18"></td>
+															<td class="menu_item-text"><span>software</span></td>
+														</tr>
+													</tbody>
+												</table>
+											</a>
+											<a href="#" class="menu_item " title="Instalar software básico en el equipo">
+												<table class="menu_item-table">
+													<tbody>
+														<tr>
+															<td width="64" style="padding:0px;text-align:center;"><img src="img/screens/apps.png" class="menu_item-img" id="m-apps" width="64" height="48"></td>
+															<td class="menu_item-text"><span>Sistema</span></td>
+														</tr>
+													</tbody>
+												</table>
+											</a>
+											<a href="#" class="menu_item " title="Diagnóstico del equipo">
+												<table class="menu_item-table">
+													<tbody>
+														<tr>
+															<td width="64" style="padding:0px;text-align:center;"><img src="img/screens/diagnostic.png" class="menu_item-img" id="m-toolkit" width="16" height="16"></td>
+															<td class="menu_item-text">Diagnóstico</td>
+														</tr>
+													</tbody>
+												</table>
+											</a>
+										</div>
+										<div class="menu-system">
+											<a href="#" class="menu-system_item" title="Panel de control">
+												<table class="menu-system_item-table">
+													<tbody>
+														<tr>
+															<td width="64" style="text-align:center;"><img src="img/screens/control-panel-grey.png" class="menu-system_item-img" width="19" height="19"></td>
+															<td class="menu-system_item-text">Panel de control</td>
+														</tr>
+													</tbody>
+												</table>
+											</a>
+											<a href="#" class="menu-system_item" title="Crear punto de restauración">
+												<table class="menu-system_item-table">
+													<tbody>
+														<tr>
+															<td width="64" style="text-align:center;"><img src="img/screens/backup-grey.png" class="menu-system_item-img" width="19" height="18"></td>
+															<td class="menu-system_item-text">Crear punto de restauración</td>
+														</tr>
+													</tbody>
+												</table>
+											</a>
+											<a href="#" class="menu-system_item" title="Crear copia de seguridad de los software">
+												<table class="menu-system_item-table">
+													<tbody>
+														<tr>
+															<td width="64" style="text-align:center;"><img src="img/screens/backup-grey.png" class="menu-system_item-img" width="19" height="18"></td>
+															<td class="menu-system_item-text">Crear copia de seguridad de los software</td>
+														</tr>
+													</tbody>
+												</table>
+											</a>
+											<a href="#" class="menu-system_item" title="Agregar/quitar programas">
+												<table class="menu-system_item-table">
+													<tbody>
+														<tr>
+															<td width="64" style="text-align:center;"><img src="img/screens/install-programs-grey.png" class="menu-system_item-img" width="16" height="19"></td>
+															<td class="menu-system_item-text">Agregar/quitar programas</td>
+														</tr>
+													</tbody>
+												</table>
+											</a>
+										</div>
+									</div>
+								</div>
+							</td>
+							<td id="app-container" class="app-container">
+							<div id="contentLoad" style="width:100%; padding-left:22px; padding-right:10px; padding-top:17%; box-sizing:border-box; text-align:center;">
+								<img style="margin-top: 25px;" src="img/load8.gif">
+								<h1 class="app-title">Cargando programas</h1>
+							</div>
+								<div id="contentApps" style="display:none;">
+									<div>
+										<h1 class="app-title">Instalación de software</h1>
+										<div id="tableApps" style="width:100%;padding-left:22px;padding-right:10px;box-sizing:border-box;"></div>
+										<button class="button" onclick="checkListApps()" style="margin-top:50px;">Instalar software</button>
+										<button class="button" onclick="readApp()" style="margin-top:50px;">Refrescar</button>
+										<button class="button" onclick="checkAllInput(document.getElementById('checkInput'))" style="margin-top:50px;" id="checkInput">Select/Disable all</button>
+									</div>
+								</div>
+							</td>
+							<td id="app-process" class="app-container" style="display:none;">
+								<div>
+									<div>
+										<h1 class="app-title">Instalación de software</h1>
+										<div style="width:100%;padding-left:22px;padding-right:10px;box-sizing:border-box;">
+											<img src="img/load8.gif">
+										</div>
+									</div>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</hta:application>
+	</body>
+</html>
