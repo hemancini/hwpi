@@ -57,7 +57,7 @@
 					'<!-- objUAC.ShellExecute "MSHTA.EXE", """" & strHTA & """ /NOADMIN " & strCommandLine, "", "runas", 1 -->
 					sTmp = Replace( Replace(Unescape(window.location), "file:///", "") ,"/", "\")
 					Path = Left(sTmp, InstrRev( sTmp , "\") - 1)
-					objUAC.ShellExecute  "cmd.exe", "/k cd "&Path&" && start "&strHTA&" /NOADMIN && exit", "", "runas", 1
+					objUAC.ShellExecute  "cmd.exe", "/k cd "&Path&" && start run.hta /NOADMIN && exit", "", "runas", 1
 					Set objUAC = Nothing
 					window.close True
 				Else
