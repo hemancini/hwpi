@@ -20,7 +20,7 @@ var apps = [
 	   "Argument":"/SILENT",
 	   "URL":"https://www.foxitsoftware.com/",
 	   "CheckedDefault":true,
-	   "Version":"7.2.0.0722",
+	   "Version":"7.0.8.1216",
 	   "UnistallRegistry":"Foxit Reader_is1",
 	   "Options": [
 	   		{
@@ -43,7 +43,7 @@ var apps = [
 	   "Argument":"/AUTO='%programfiles%\\AIMP'",
 	   "URL":"http://www.aimp.ru/",
 	   "CheckedDefault":true,
-	   "Version":"4.02",
+	   "Version":"4.02.1721",
 	   "UnistallRegistry":"AIMP",
 	   "Icon":"Install\\AIMP\\icon.png"
 	},
@@ -56,7 +56,7 @@ var apps = [
 	   "Argument":"/s",
 	   "URL":"http://www.winrar.es/",
 	   "CheckedDefault":true,
-	   "Version":"5.30",
+	   "Version":"5.30.0",
 	   "UnistallRegistry":"WinRAR archiver",
 	   "Icon":"Install\\WinRAR\\icon.png"
 	},
@@ -86,7 +86,7 @@ var apps = [
 			}],
 	   "URL":"http://ejie.me/",
 	   "CheckedDefault":true,
-	   "Version":"3.0.406",
+	   "Version":"3.0",
 	   "UnistallRegistry":"Clover",
 	   "Icon":"Install\\Clover\\icon.png"
 	},
@@ -105,13 +105,13 @@ var apps = [
 	},
 	{  
 	   "ID":"08",
-	   "Name":"Notepad++",
+	   "Name":"Notepad",
 	   "Description":"Un editor de texto y de código fuente libre con soporte para varios lenguajes de programación",
-	   "Path32":"Install\\Notepad++\\npp.6.8.2.Installer.exe",
+	   "Path32":"Install\\Notepad++\\npp.6.9.2.Installer.exe",
 	   "Argument":"/S",
 	   "URL":"https://notepad-plus-plus.org/",
 	   "CheckedDefault":true,
-	   "Version":"6.8.2",
+	   "Version":"6.9.2",
 	   "UnistallRegistry":"Notepad++",
 	   "Icon":"Install\\Notepad++\\icon.png"
 	},
@@ -129,7 +129,7 @@ var apps = [
 			}],
 	   "URL":"https://unchecky.com/",
 	   "CheckedDefault":true,
-	   "Version":"0.4.1 Beta",
+	   "Version":"0.4.3",
 	   "UnistallRegistry":"Unchecky",
 	   "Icon":"Install\\Unchecky\\icon.png"
 	},
@@ -165,13 +165,13 @@ var apps = [
 			}],
 	   "URL":"http://www.vso-software.fr/",
 	   "CheckedDefault":true,
-	   "Version":"4.0.2.5 ML",
+	   "Version":"4.0.2.5",
 	   "UnistallRegistry":"{8969CD6F-5B75-40B9-8701-86ECA4C1F263}_is1",
 	   "Icon":"Install\\VSO Image Resizer\\icon.png"
 	},
 	{  
 	   "ID":"12",
-	   "Name":"Virtual CloneDrive",
+	   "Name":"VirtualCloneDrive",
 	   "Description":"Monte archivos ISO con Vitrual CloneDrive y úselos como si fueran unidades físicas",
 	   "Path32":"Install\\Virtual CloneDrive\\SetupVirtualCloneDrive5480.exe",
 	   "Argument":"/S /noreboot",
@@ -183,7 +183,7 @@ var apps = [
 			}],
 	   "URL":"http://www.elby.ch",
 	   "CheckedDefault":true,
-	   "Version":"2.2.1",
+	   "Version":"5.4.8.0",
 	   "UnistallRegistry":"VirtualCloneDrive",
 	   "Icon":"Install\\Virtual CloneDrive\\icon.png"
 	},
@@ -202,7 +202,7 @@ var apps = [
 	},
 	{  
 	   "ID":"14",
-	   "Name":"Flash Player ActiveX",
+	   "Name":"Adobe Flash Player 21 ActiveX",
 	   "Description":"Flash Player Internet Explorer - ActiveX",
 	   "Path32":"Install\\Flash Player\\flashplayer_21_ax_debug.exe",
 	   "Argument":"-install",
@@ -214,7 +214,7 @@ var apps = [
 	},
 	{  
 	   "ID":"15",
-	   "Name":"Flash Player NPAPI",
+	   "Name":"Adobe Flash Player 21 NPAPI",
 	   "Description":"Flash Player Firefox - NPAPI",
 	   "Path32":"Install\\Flash Player\\flashplayer_21_plugin_debug.exe",
 	   "Argument":"-install",
@@ -226,7 +226,7 @@ var apps = [
 	},
 	{  
 	   "ID":"16",
-	   "Name":"UltraISO Premium Edition",
+	   "Name":"UltraISO Premium",
 	   "Description":"Cree y edite archivos ISO fácilmente",
 	   "Path32":"Install\\UltraISO\\uiso96pes.exe",
 	   "Argument":"/silent",
