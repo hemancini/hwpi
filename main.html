@@ -66,27 +66,25 @@
 			var expURL         = apps[i].URL;
 			var expCondition   = apps[i].Condition;
 
-			var checkBoxInstall, imgOption, installUnistall;
-			var tableOptions     = "";
-			var incompatible     = "";
-			var appUnistallExist = typeof expRegUnistall != 'undefined' && unistallExist(expRegUnistall);
-			var appCondition     = typeof expCondition != 'undefined' && !eval(unescape(expCondition.replace(/\\/g, "\\\\")));
-			var checkboxDisabled = appCondition ? "disabled=''" : appUnistallExist ? "disabled=''" : "";
+			var checkBoxInstall, imgOption, installUnistall, appInstalledOldExist, appInstalledExist;
+			var tableOptions = ""; var incompatible = "";
+			
+			appInstalledOldExist = appsInstalledOld(expName, appsInstalled32, expVersion, "registry32") ? true : appsInstalledOld(expName, appsInstalled64, expVersion, "registry64");
+			appInstalledExist    = appsInstalled(expName, appsInstalled32, expVersion, "registry32") ? true : appsInstalled(expName, appsInstalled64, expVersion, "registry64");
 
-			if (!appCondition) {
-				if (appUnistallExist) {
-					installUnistall = "<button onclick='unistallApp("+expId+")' class='list_button uninstall' title='Desintalar "+expName+"'>Desintalar</button>";
+			var checkboxDisabled   = appInstalledExist ? "disabled=''" : appInstalledExist ? "disabled=''" : "";
+			
+			if (appInstalledOldExist) {
+				installUnistall = "<button onclick='unistallApp("+expId+", true)' class='list_button uninstall' title='Desintalar "+expName+"'>Desintalar</button><img src='img/screens/icon-i.png'>";
+				checkBoxInstall = "<input type='checkbox' title='"+expName+" instalado' id='"+expId+"' value='"+expId+"' "+checkboxDisabled+" style='float:right;cursor:not-allowed'>";
+			} else {
+				if (appInstalledExist) {
+					installUnistall = "<button onclick='unistallApp("+expId+", false)' class='list_button uninstall' title='Desintalar "+expName+"'>Desintalar</button>";
 					checkBoxInstall = "<input type='checkbox' title='"+expName+" instalado' id='"+expId+"' value='"+expId+"' "+checkboxDisabled+" style='float:right;cursor:not-allowed'>";
 				} else {
 					installUnistall = "<button onclick='installApp("+expId+")' class='list_button install' title='Instalar "+expName+"'>Instalar</button>";
 					checkBoxInstall = "<input type='checkbox' id='"+expId+"' name='software' value='"+expId+"' "+checkboxDisabled+" style='float:right'>";
 				}
-			} else {
-				if (!showIncompatible) {
-					incompatible = "style='display:none;'";
-				}
-				installUnistall = "<button class='list_button uninstall' title='Incompatible'>Incompatible</button>";
-				checkBoxInstall = "<input type='checkbox' title='"+expName+" instalado' id='"+expId+"' value='"+expId+"' "+checkboxDisabled+" style='float:right;cursor:not-allowed'>";
 			}
 
 			if (typeof expOptions != 'undefined') {
@@ -98,8 +96,8 @@
 					}
 					tableOptions += "<tr name='options"+expId+"' class='list_row list_dropdown' style='display:none'>"+
 										"<td class='list_cell'> </td>"+
-										"<td class='list_cell list_info'><a href='#' class='list_info-link'>"+checkBoxOption+"</a></td>"+
-										"<td class='list_cell list_name' title=''><a href='#'><span >"+expOptions[j].Description+"</span></a></td>"+
+										"<td class='list_cell list_info'><a class='list_info-link'>"+checkBoxOption+"</a></td>"+
+										"<td class='list_cell list_name' title=''><a><span >"+expOptions[j].Description+"</span></a></td>"+
 										"<td class='list_cell list_button-col'><button class='list_button install' >&nbsp;</button></td>"+
 										"<td class='list_cell' colspan='3' width='44'> </td>"+
 									"</tr>";
@@ -112,7 +110,7 @@
 			tableOutListApps += "<tr class='list_row' "+incompatible+">"+
 									"<td class='list_cell list_checkcell'><label class='list_checkzone'>"+checkBoxInstall+"</label></td>"+
 									"<td id='detail' class='list_cell list_info'>"+
-										"<a href='#' class='list_info-link'><img id='icon"+expId+"' src='"+expIcon+"' class='list_info-link-icon' onclick='checkInput(this.id)' width='16' height='16'></a>"+
+										"<a class='list_info-link'><img id='icon"+expId+"' src='"+expIcon+"' class='list_info-link-icon' onclick='checkInput(this.id)' width='16' height='16'></a>"+
 										<!-- Detail software -->
 										"<div class='list_info-wrapper'>"+
 											"<div class='popover popover_right'>"+
@@ -143,12 +141,11 @@
 											"</div>"+
 										"</div>"+
 									"</td>"+
-									"<td class='list_cell list_name' title=''><a href='#'><span>"+expName+" </span><span></span><span>"+expVersion+"</span></a></td>"+
+									"<td class='list_cell list_name' title=''><a><span>"+expName+" </span><span></span><span>"+expVersion+"</span></a></td>"+
 									"<td class='list_cell list_button-col'>"+installUnistall+"</td>"+
 									"<td class='list_cell list_arrow-col'>"+imgOption+"</td>"+
 								"</tr>"+
 								tableOptions;
-			<!-- document.getElementById("listApps").innerHTML = tableOutListApps; -->
 			document.getElementById("contentLoad").style.display = 'none';
 			document.getElementById("contentApps").style.display = '';
 		}
@@ -185,7 +182,7 @@
 	</script>
 
 	</head>
-	<body class="ui1 copy1 start_cta-1" onload="readApp()">
+	<body class="ui1 copy1 start_cta-1" onload="javascript:getAppsInstalled(false); readApp();">
 		<hta:application id="dpa" application="yes" applicationname="Install Solution" borderstyle="normal" caption="yes" contextmenu="no" icon="./Tools/icon.ico" innerborder="no" maximizebutton="yes" minimizebutton="yes" navigable="yes" scroll="yes" scrollflat="no" selection="no" showintaskbar="yes" singleinstance="no" sysmenu="yes" version="0.1" windowstate="maximize">
 			<div id="app" class="app">
 				<table class="main">
@@ -282,7 +279,7 @@
 										<h1 class="app-title">Instalación de software</h1>
 										<div id="tableApps" style="width:100%;padding-left:22px;padding-right:10px;box-sizing:border-box;"></div>
 										<button class="button" onclick="checkListApps()" style="margin-top:50px;">Instalar software</button>
-										<button class="button" onclick="readApp()" style="margin-top:50px;">Refrescar</button>
+										<button class="button" onclick="javascript:getAppsInstalled(true); readApp();" style="margin-top:50px;">Refrescar</button>
 										<button class="button" onclick="checkAllInput(document.getElementById('checkInput'))" style="margin-top:50px;" id="checkInput">Select/Disable all</button>
 									</div>
 								</div>

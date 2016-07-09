@@ -42,30 +42,6 @@
 		version="0.1"
 		windowState="maximize"/>
 
-		<script language="VBScript">
-			If InStr( UCase( wpi.CommandLine ), "/NOADMIN" ) > 0 Then
-				IsAdmin = True
-			Else
-				IsAdmin = False
-			End If
-			If Not isAdmin Then
-				answer = MsgBox("Ejecutar como administrador?", vbYesNo + vbQuestion, wpi.applicationName)
-				If answer = vbYes Then
-					strHTA = Self.location.pathname
-					strCommandLine = wpi.CommandLine
-					Set objUAC = CreateObject( "Shell.Application" )
-					'<!-- objUAC.ShellExecute "MSHTA.EXE", """" & strHTA & """ /NOADMIN " & strCommandLine, "", "runas", 1 -->
-					sTmp = Replace( Replace(Unescape(window.location), "file:///", "") ,"/", "\")
-					Path = Left(sTmp, InstrRev( sTmp , "\") - 1)
-					objUAC.ShellExecute  "cmd.exe", "/k cd "&Path&" && start run.hta /NOADMIN && exit", "", "runas", 1
-					Set objUAC = Nothing
-					window.close True
-				Else
-					'do nothing
-				End If
-			End If
-		</script>
-
 		<script type="text/javascript">
 			var cmd = wpi.commandLine;
 			if (cmd != ''){

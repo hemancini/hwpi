@@ -1,5 +1,5 @@
 var version = "0.1";
-var title = "Install pilso";
+var title = "HWPI";
 var showIncompatible = true;
 document.title = title;
 
@@ -28,13 +28,15 @@ var DELETE = [];	// Delete files
 
 var registry32 = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\";
 var registry64 = "SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\";
+var appsInstalled32 = [];
+var appsInstalled64 = [];
 
 var rootPath;
 rootPath=unescape(document.location);
 rootPath=rootPath.substring(0,rootPath.lastIndexOf("/"));
 rootPath=rootPath.replace("file:///","").replace(/\//g,"\\");
 rootPath=rootPath.replace("file:","").replace(/\//g,"\\");				// For network share
-// rootPath=rootPath.substring(0,rootPath.lastIndexOf('\\'));				// Remove the 'Common' folder from rootPath
+// rootPath=rootPath.substring(0,rootPath.lastIndexOf('\\'));				// Remove the 'Common' fotherer from rootPath
 
 //	Reads a REG_SZ value from the local computer's registry using WMI.
 //	Parameters:
@@ -116,18 +118,44 @@ function installApp(id) {
 		WshShell.Quit;
 	}
 }
-function unistallApp(id) {
-	var i;
-	try {
-		for(i = 0; i < apps.length; i++) {
+function unistallApp(id, otherVersion) {
+	var appRegUnistall, unistall;
+	if (otherVersion) {
+		var j = 1;
+		var registry = registry32;
+		for(var i = 0; i < apps.length; i++) {
 			if (apps[i].ID == id) {
-				var appRegUnistall = apps[i].UnistallRegistry;
+				appRegUnistall = apps[i].Name;
 				break;
 			}
 		}
-		var unistall = (ReadRegStr(HKLM, registry32+appRegUnistall, "UninstallString", architectureType) != null ?
-						ReadRegStr(HKLM, registry32+appRegUnistall, "UninstallString", architectureType) :
-						ReadRegStr(HKLM, registry64+appRegUnistall, "UninstallString", architectureType));
+		 while (j <= 2) {
+			var rtn = regGetSubKeys(".", registry);
+			var patt = new RegExp(appRegUnistall.trim(), 'gi');
+			if (rtn.Results == 0) {
+				for (var idx = 0; idx < rtn.SubKeys.length; idx++) {
+					if (patt.test(rtn.SubKeys[idx])) {
+						unistall = (ReadRegStr(HKLM, registry32+rtn.SubKeys[idx], "UninstallString", architectureType) != null ?
+						ReadRegStr(HKLM, registry32+rtn.SubKeys[idx], "UninstallString", architectureType) :
+						ReadRegStr(HKLM, registry64+rtn.SubKeys[idx], "UninstallString", architectureType));
+					}
+				}
+			}
+			if (!typeof unistall != 'undefined') { registry = registry64; }
+			j++;
+		};
+	} else {
+		for(var i = 0; i < apps.length; i++) {
+			if (apps[i].ID == id) {
+				appRegUnistall = apps[i].UnistallRegistry;
+				break;
+			}
+		}
+		unistall = (ReadRegStr(HKLM, registry32+appRegUnistall, "UninstallString", architectureType) != null ?
+			ReadRegStr(HKLM, registry32+appRegUnistall, "UninstallString", architectureType) :
+			ReadRegStr(HKLM, registry64+appRegUnistall, "UninstallString", architectureType));
+	}
+	try {
 		if (unistall.indexOf('"') == 0 || unistall.indexOf('/') > 0 || unistall.indexOf(' -') > 0) {
 			WshShell.run(unistall, 1, true);
 		} else {
@@ -138,15 +166,85 @@ function unistallApp(id) {
 		alert("unistallApp: " + apps[i].Name +"\n Path: " + unistall);
 	}
 }
-function unistallExist(key) {
-	var exist        = false;
-	var fileUnistall = (ReadRegStr(HKLM, registry32+key, "UninstallString", architectureType) != null ?
-						ReadRegStr(HKLM, registry32+key, "UninstallString", architectureType) :
-						ReadRegStr(HKLM, registry64+key, "UninstallString", architectureType));
-	if (fileUnistall != null) {
-		exist = true;
+function getAppsInstalled(isNew) {
+	setAppsInstalled(registry32, isNew);
+	setAppsInstalled(registry64, isNew);
+	
+	// logs
+	console.log("Programas " + title);
+	console.log(apps);
+	console.log("Programas instalados x86");
+	console.log(appsInstalled32);
+	console.log("Programas instalados x64");
+	console.log(appsInstalled64);
+}
+function setAppsInstalled(registry, isNew) {
+	if (isNew) {
+		registry.indexOf('Wow6432Node') != -1 ? appsInstalled64 = [] : appsInstalled32 = [];
 	}
-	return exist;
+	var displayName, displayVersion, uninstallString;
+	var rtn = regGetSubKeys(".", registry);
+	if (rtn.Results == 0) {
+		for (var idx = 0; idx < rtn.SubKeys.length; idx++) {
+			displayName = ReadRegStr(HKLM, registry32+rtn.SubKeys[idx], "DisplayName", architectureType) != null ?
+					ReadRegStr(HKLM, registry32+rtn.SubKeys[idx], "DisplayName", architectureType) :
+					ReadRegStr(HKLM, registry64+rtn.SubKeys[idx], "DisplayName", architectureType);
+			if (displayName != null ) {
+				displayVersion = ReadRegStr(HKLM, registry32+rtn.SubKeys[idx], "DisplayVersion", architectureType) != null ?
+					ReadRegStr(HKLM, registry32+rtn.SubKeys[idx], "DisplayVersion", architectureType) :
+					ReadRegStr(HKLM, registry64+rtn.SubKeys[idx], "DisplayVersion", architectureType);
+					// .replace('v', '').split(',');
+					// displayVersion = displayVersion[0];
+				uninstallString = ReadRegStr(HKLM, registry32+rtn.SubKeys[idx], "UninstallString", architectureType) != null ?
+					ReadRegStr(HKLM, registry32+rtn.SubKeys[idx], "UninstallString", architectureType) :
+					ReadRegStr(HKLM, registry64+rtn.SubKeys[idx], "UninstallString", architectureType);
+
+				uninstallString != null ? uninstallString = uninstallString.replace(/\\/g,"\\\\").replace(/"/g, '\'') : "";
+
+				if (registry.indexOf('Wow6432Node') != -1) {
+					if (rtn.SubKeys.length == idx+1) {
+						appsInstalled64 += '{"DisplayName":"' + displayName + '", "DisplayVersion":"' + displayVersion + '", "UninstallString":"' + uninstallString + '"}';
+					} else {
+						appsInstalled64 += '{"DisplayName":"' + displayName + '", "DisplayVersion":"' + displayVersion + '", "UninstallString":"' + uninstallString + '"},';
+					}
+				} else {
+					if (rtn.SubKeys.length == idx+1) {
+						appsInstalled32 += '{"DisplayName":"' + displayName + '", "DisplayVersion":"' + displayVersion + '", "UninstallString":"' + uninstallString + '"}';
+					} else {
+						appsInstalled32 += '{"DisplayName":"' + displayName + '", "DisplayVersion":"' + displayVersion + '", "UninstallString":"' + uninstallString + '"},';
+					}
+				}
+			}
+		}
+		registry.indexOf('Wow6432Node') != -1 ? appsInstalled64 = (new Function("return [" + appsInstalled64 + "];")()) : appsInstalled32 = (new Function("return [" + appsInstalled32 + "];")());
+	}
+}
+function appsInstalledOld(_appName, _appsInstalled, _appVersion, _registry) {
+	var existApp      = false;
+	var appNameStr    = new RegExp(_appName, 'gi');
+	var appVersionStr = new RegExp(_appVersion, 'gi');
+	for(var i = 0; i < _appsInstalled.length; i++) {
+			if (appNameStr.test(_appsInstalled[i].DisplayName) && _appsInstalled[i].DisplayVersion != "null") {
+				if (!appVersionStr.test(_appsInstalled[i].DisplayVersion)) { existApp = true; break; }
+			}
+	}
+	console.log("appsInstalledOld("+_appName+", "+_registry+", "+_appVersion+")");
+	console.log("return: " + existApp);
+	return existApp;
+}
+function appsInstalled(_appName, _appsInstalled, _appVersion, _registry) {
+	var existApp      = false;
+	var appNameStr    = new RegExp(_appName, 'gi');
+	var appVersionStr = new RegExp(_appVersion, 'gi');
+	for(var i = 0; i < _appsInstalled.length; i++) {
+		if (appNameStr.test(_appsInstalled[i].DisplayName)) {
+			existApp = true;
+			break;
+		}
+	}
+	console.log("appsInstalled("+_appName+", "+_registry+", "+_appVersion+")");
+	console.log("return: " + existApp);
+	return existApp;
 }
 function showOptions(optionId) {
 	var id = optionId.replace("optionsImg", "");
@@ -210,8 +308,10 @@ function openDirectory(id){
 function regGetSubKeys(strComputer, strRegPath) {
 	try {
 		var aNames = null;
+		var oCtx = new ActiveXObject("WbemScripting.SWbemNamedValueSet");
+		oCtx.Add("__ProviderArchitecture", architectureType);
 		var objLocator     = new ActiveXObject("WbemScripting.SWbemLocator");
-		var objService     = objLocator.ConnectServer(strComputer, "root\\default");
+		var objService     = objLocator.ConnectServer(strComputer, "root\\default", "", "", "", "", 0, oCtx);
 		var objReg         = objService.Get("StdRegProv");
 		var objMethod      = objReg.Methods_.Item("EnumKey");
 		var objInParam     = objMethod.InParameters.SpawnInstance_();
@@ -220,7 +320,7 @@ function regGetSubKeys(strComputer, strRegPath) {
 		var objOutParam = objReg.ExecMethod_(objMethod.Name, objInParam);
 		switch(objOutParam.ReturnValue) {
 		  case 0:        // Success
-			aNames = (objOutParam.sNames != null) ? objOutParam.sNames.toArray(): null;
+			aNames = (objOutParam.sNames != null) ? objOutParam.sNames.toArray() : null;
 			break;
 		  case 2:        // Not Found
 			aNames = null;
@@ -228,16 +328,6 @@ function regGetSubKeys(strComputer, strRegPath) {
 		}
 		return { Results : 0, SubKeys : aNames };
 	} catch(e) {
-		return { Results: e.number, SubKeys : e.description }
+		return { Results: e.number, SubKeys : e.description };
 	}
 }
-
-// var rtn = regGetSubKeys(".", "SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall");
-// var patt = new RegExp(key, 'gi');
-// if (rtn.Results == 0) {
-	// for (var idx = 0; idx < rtn.SubKeys.length; idx++) {
-		// if (patt.test(rtn.SubKeys[idx])) {
-			// alert(rtn.SubKeys[idx]);
-		// }
-	// }
-// }
